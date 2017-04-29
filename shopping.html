@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <script src="js/angular.min.js"></script>
+</head>
+<body>
+<div ng-app="myApp" ng-controller="control">
+
+
+    <div class="form-group has-success has-feedback">
+        <div class="input-group">
+            <span class="input-group-addon glyphicon glyphicon-search"></span>
+            <input type="text" class="form-control" ng-model="search">
+        </div>
+    </div>
+
+
+
+
+    <table class="table text-center">
+        <tr ng-show="data.length===0" ng-hide="data.length>0" class="text-center">
+            <td colspan="5">购物车空了</td>
+        </tr>
+        <tr>
+        <th class="text-center">商品</th>
+        <th class="text-center" ng-click="change()">
+            价格
+            <span  ng-class="{dropup:status=='-'}">
+                <span class="caret" ></span>
+            </span>
+        </th>
+        <th class="text-center">数量</th>
+        <th class="text-center">合计</th>
+        <th class="text-center">操作</th>
+    </tr>
+        <!--循环加筛选-->
+        <tr ng-repeat="item in data | filter:{name:search} | orderBy:status+price">
+        <td>{{item.name}}</td>
+        <td>{{item.price}}</td>
+        <td >
+            <form class="form-inline">
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-addon" ng-click="jian(item.id)">-</div>
+                    <input type="text" class="form-control" id="exampleInputAmount" ng-model="item.num">
+                    <div class="input-group-addon" ng-click="jia(item.id)">+</div>
+                </div>| orderBy:status+ziduan
+            </div>
+        </form>
+        </td>
+        <td>{{item.price*item.num}}</td>
+        <td><input class="btn btn-danger" type="button" value="删除" ng-click="del(item.id)"></td>
+    </tr>
+    <tr>
+        <td>合计数量</td>
+        <td>{{getNum()}}</td>
+        <td>合计价格</td>
+        <td>{{getPrice()}}</td>
+        <td><input class="btn btn-danger" type="button" value="清空数据库" ng-click="clear()"></td>
+    </tr>
+</table>
+</div>
+</body>
+<script>
+    var app=angular.module("myApp",[]);
+    app.controller("control",["$scope","$filter",function ($scope,$filter) {
+        $scope.data=[
+            {id:2,name:"node.js实战",price:100,num:15},
+            {id:3,name:"PHP进阶练习",price:43,num:4},
+            {id:4,name:"运动鞋",price:200,num:4}
+
+        ];
+        $scope.getNum=function () { //获得购物车总的商品数量
+            var sum=0;
+            $scope.data.forEach(function (val,index) {
+                var newNum=val.num;
+                if(parseInt(newNum)>0&&parseInt(newNum)){
+                    sum+=parseInt(newNum);
+                    val.num=parseInt(newNum);
+                }else {
+
+                    val.num=0;
+                }
+            })
+            return sum;
+        }
+        $scope.getPrice=function () { //
+            var sum=0;
+            $scope.data.forEach(function (val,index) {
+                sum+=val.price*val.num;
+            })
+            return sum;
+        }
+        $scope.del=function (para) { //删除某一条记录
+            $scope.data.forEach(function (val,index) {
+                if(val.id===para){
+                    $scope.data.splice(index,1);
+                }
+            })
+        }
+        $scope.clear=function () { //清楚数据库
+            $scope.data=[];
+        }
+
+        $scope.search=""; //搜索数据
+
+        //加
+        $scope.jia=function (para) {
+            $scope.data.forEach(function (val,index) {
+                if(val.id===para){
+                    val.num++;
+                }
+            })
+        }
+        //减
+        $scope.jian=function (para) {
+            $scope.data.forEach(function (val,index) {
+                if(val.id===para){
+                    val.num--;
+                }
+            })
+        }
+        $scope.ziduan="price";
+        $scope.status="";
+        $scope.change=function () {
+            if($scope.status==""){
+                $scope.status="-";
+                //$scope.data=$filter('orderBy')($scope.data,"-price");//这是在js内部里写的排序,这里写了 外面就不用写了
+            }else {
+                $scope.status="";
+                //$scope.data=$filter('orderBy')($scope.data,"price");//这是在js内部里写的排序
+            }
+        }
+    }])
+</script>
+</html>
